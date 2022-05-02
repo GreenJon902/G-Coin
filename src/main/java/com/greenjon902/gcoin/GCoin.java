@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 public final class GCoin extends JavaPlugin {
     Logger logger = this.getLogger();
 
+    public static final int gcoinCustomModelData = 71;
+
     @Override
     public void onEnable() {
         logger.info("G-Coin starting...");
