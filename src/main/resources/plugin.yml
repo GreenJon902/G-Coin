@@ -6,3 +6,9 @@ prefix: G-Coin
 authors: [ GreenJon902 ]
 description: G-Coin utilities
 website: https://github.com/GreenJon902
+
+commands:
+  givegcoin:
+    description: Summons a gcoin
+    usage: /<command> [player] <amount>
+    permission: op
