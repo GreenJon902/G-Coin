@@ -11,7 +11,8 @@ public final class GCoin extends JavaPlugin {
     public void onEnable() {
         logger.info("G-Coin starting...");
 
-
+        getCommand("getgcoin").setExecutor(new GiveGCoinCommand());
+        getServer().getPluginManager().registerEvents(new Listener(), this);
 
         logger.info("G-Coin started!");
     }
