@@ -19,6 +19,6 @@ public final class GCoin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        logger.info("G-Coin stopping!")
+        logger.info("G-Coin stopping!");
     }
 }
