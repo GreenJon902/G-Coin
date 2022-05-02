@@ -2,7 +2,7 @@ name: G-Coin
 version: '${project.version}'
 main: com.greenjon902.gcoin.GCoin
 api-version: 1.18
-prefix: GC
+prefix: G-Coin
 authors: [ GreenJon902 ]
 description: G-Coin utilities
 website: https://github.com/GreenJon902
