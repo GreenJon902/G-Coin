@@ -44,30 +44,6 @@ public final class GCoin extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftItem(CraftItemEvent event) {
-        System.out.println(1);
-        System.out.println(event.getCurrentItem());
-        System.out.println(event.getCurrentItem().getItemMeta());
-        if (event.getCurrentItem().getItemMeta().hasCustomModelData()) {
-            System.out.println(event.getCurrentItem().getItemMeta().getCustomModelData());
-        } else {
-            System.out.println((String) null);
-        }
-        System.out.println(event.getCurrentItem().getType());
-        System.out.println(event.getSlot());
-        System.out.println(event.getRawSlot());
-        System.out.println(event.getView().convertSlot(event.getRawSlot()));
-        System.out.println(event.getSlotType());
-        System.out.println(event.getView().getType());
-        System.out.println(event.getWhoClicked().getInventory().getItem(event.getView().convertSlot(event.getRawSlot())));
-        System.out.println(event.getInventory().getItem(event.getView().convertSlot(event.getRawSlot())));
-        event.setCancelled(true);
-        System.out.println(event.getWhoClicked().getInventory().getItem(event.getView().convertSlot(event.getRawSlot())));
-        System.out.println(event.getInventory().getItem(event.getView().convertSlot(event.getRawSlot())));
-        event.setCancelled(false);
-        System.out.println(event.getInventory().getItem(0));
-        System.out.println(event.getInventory().getItem(1));
-        System.out.println(event.getInventory().getItem(2));
-        System.out.println(event.getInventory().getItem(3));
-        System.out.println(event.getInventory().getItem(4));
+
     }
 }
