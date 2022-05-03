@@ -5,6 +5,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.sound.midi.Track;
@@ -37,5 +39,11 @@ public final class GCoin extends JavaPlugin implements Listener {
             event.setCancelled(true);
             logger.info(event.getPlayer().getName() + " tried playing a g-coin item!");
         }
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCraftItem(CraftItemEvent event) {
+
     }
 }
