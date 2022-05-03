@@ -37,10 +37,8 @@ public class GiveGCoinCommand implements TabExecutor {
             return true;
         }
 
-        ItemStack itemStack = new ItemStack(Material.SUNFLOWER, amount);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setCustomModelData(GCoin.gcoinCustomModelData);
-        itemStack.setItemMeta(itemMeta);
+        ItemStack itemStack = GCoin.getGCoinItemStack();
+        itemStack.setAmount(amount);
         recipient.getInventory().addItem(itemStack);
         return true;
     }
