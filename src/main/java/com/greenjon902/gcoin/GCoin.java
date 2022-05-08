@@ -1,12 +1,7 @@
 package com.greenjon902.gcoin;
 
-import com.destroystokyo.paper.event.player.PlayerRecipeBookClickEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -19,11 +14,9 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.sound.midi.Track;
 import java.util.logging.Logger;
 
 public final class GCoin extends JavaPlugin implements Listener {
@@ -64,7 +57,7 @@ public final class GCoin extends JavaPlugin implements Listener {
         gCoinNoteItemStack = new ItemStack(Material.GOLD_INGOT);
         ItemMeta gCoinNoteItemMeta = gCoinNoteItemStack.getItemMeta();
         gCoinNoteItemMeta.setCustomModelData(gcoinCustomModelData);
-        gCoinNoteItemMeta.displayName(Component.text("G-Note", TextColor.color(255, 170, 0)).asComponent());
+        gCoinNoteItemMeta.displayName(Component.text("G-Coin Note", TextColor.color(255, 170, 0)).asComponent());
         gCoinNoteItemStack.setItemMeta(gCoinNoteItemMeta);
 
         gCoinBlockItemStack = new ItemStack(Material.GOLD_BLOCK);
@@ -75,16 +68,17 @@ public final class GCoin extends JavaPlugin implements Listener {
 
 
         ShapedRecipe gCoinNoteShapedRecipe = new ShapedRecipe(new NamespacedKey(this,
-                "gcoin_note_shaped_recipe"), gCoinNoteItemStack);
+                "gcoin_note"), gCoinNoteItemStack);
         gCoinNoteShapedRecipe.shape("C C", "CCC");
         gCoinNoteShapedRecipe.setIngredient('C', new RecipeChoice.ExactChoice(gCoinItemStack));
 
         ShapedRecipe gCoinBlockShapedRecipe = new ShapedRecipe(new NamespacedKey(this,
-                "gcoin_block_shaped_recipe"), gCoinNoteItemStack);
+                "gcoin_block"), gCoinBlockItemStack);
         gCoinBlockShapedRecipe.shape("NNN", "NNN", "NNN");
         gCoinBlockShapedRecipe.setIngredient('N', new RecipeChoice.ExactChoice(gCoinNoteItemStack));
 
         Bukkit.addRecipe(gCoinNoteShapedRecipe);
+        Bukkit.addRecipe(gCoinBlockShapedRecipe);
 
         logger.info("G-Coin started!");
     }
