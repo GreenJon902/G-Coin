@@ -57,7 +57,7 @@ public final class GCoin extends JavaPlugin implements Listener {
         gCoinNoteItemStack = new ItemStack(Material.GOLD_INGOT);
         ItemMeta gCoinNoteItemMeta = gCoinNoteItemStack.getItemMeta();
         gCoinNoteItemMeta.setCustomModelData(gcoinCustomModelData);
-        gCoinNoteItemMeta.displayName(Component.text("G-Coin Note", TextColor.color(255, 170, 0)).asComponent());
+        gCoinNoteItemMeta.displayName(Component.text("", TextColor.color(255, 170, 0)).asComponent());
         gCoinNoteItemStack.setItemMeta(gCoinNoteItemMeta);
 
         gCoinBlockItemStack = new ItemStack(Material.GOLD_BLOCK);
@@ -72,13 +72,29 @@ public final class GCoin extends JavaPlugin implements Listener {
         gCoinNoteShapedRecipe.shape("C C", "CCC");
         gCoinNoteShapedRecipe.setIngredient('C', new RecipeChoice.ExactChoice(gCoinItemStack));
 
+        ItemStack gNoteOut = gCoinNoteItemStack.clone();
+        gNoteOut.setAmount(9);
+        ShapedRecipe gCoinNoteShapedRecipe2 = new ShapedRecipe(new NamespacedKey(this,
+                "gcoin_note_2"), gNoteOut);
+        gCoinNoteShapedRecipe2.shape("B");
+        gCoinNoteShapedRecipe2.setIngredient('B', new RecipeChoice.ExactChoice(gCoinBlockItemStack));
+
         ShapedRecipe gCoinBlockShapedRecipe = new ShapedRecipe(new NamespacedKey(this,
                 "gcoin_block"), gCoinBlockItemStack);
         gCoinBlockShapedRecipe.shape("NNN", "NNN", "NNN");
         gCoinBlockShapedRecipe.setIngredient('N', new RecipeChoice.ExactChoice(gCoinNoteItemStack));
 
+        ItemStack gCoinOut = gCoinItemStack.clone();
+        gCoinOut.setAmount(5);
+        ShapedRecipe gCoinShapedRecipe = new ShapedRecipe(new NamespacedKey(this,
+                "gcoin"), gCoinOut);
+        gCoinShapedRecipe.shape("N");
+        gCoinShapedRecipe.setIngredient('N', new RecipeChoice.ExactChoice(gCoinNoteItemStack));
+
         Bukkit.addRecipe(gCoinNoteShapedRecipe);
+        Bukkit.addRecipe(gCoinNoteShapedRecipe2);
         Bukkit.addRecipe(gCoinBlockShapedRecipe);
+        Bukkit.addRecipe(gCoinShapedRecipe);
 
         logger.info("G-Coin started!");
     }
