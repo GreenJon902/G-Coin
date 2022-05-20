@@ -1,11 +1,9 @@
 package com.greenjon902.gcoin;
 
+import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -117,84 +115,48 @@ public final class GCoin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCraftingMatrixEdit(InventoryClickEvent event) {
+    public void blockGCoinInCertainInventories(InventoryClickEvent event) {
         Inventory inventory = event.getClickedInventory();
         if (inventory == null) {
             return;
         }
 
-        Plugin plugin = this;
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                if (checkIllegalInventoryThing(inventory)) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ItemStack air = new ItemStack(Material.AIR);
+        ItemStack cursor = event.getView().getCursor();
+        if (cursor == null) {
+            return;
+        }
 
-                            switch (inventory.getType()) { // cancel the modification (remove the result for most)
-                                case WORKBENCH:
-                                case CRAFTING:
-                                    ((CraftingInventory) inventory).setResult(air);
-                                    break;
-                                case SMITHING:
-                                    ((SmithingInventory) inventory).setResult(air);
-                                    break;
-                                case ENCHANTING: // Need more custom blocking
-                                case BREWING: // Need more custom blocking
-                                    break;
-                                case FURNACE:
-                                case SMOKER:
-                                case BLAST_FURNACE:
-                                    ((FurnaceInventory) inventory).setResult(air);
-                                    break;
-                                case STONECUTTER:
-                                    ((StonecutterInventory) inventory).setResult(air);
-                                    break;
-                                case GRINDSTONE:
-                                    ((GrindstoneInventory) inventory).setResult(air);
-                                    break;
-                                case CARTOGRAPHY:
-                                    ((CartographyInventory) inventory).setItem(2, air);
-                                    break;
-                                case LOOM:
-                                    ((LoomInventory) inventory).setItem(3, air);
-                                    break;
-                                case MERCHANT:
-                                    ((MerchantInventory) inventory).setItem(2, air);
-                                    break;
-                                case BEACON:
-                                    event.getInventory().addItem(((BeaconInventory) inventory).getItem(0));
-                                    ((BeaconInventory) inventory).setItem(0, air);
-                                    break;
-                                case ANVIL:
-                                    ((AnvilInventory) inventory).setResult(air);
-                                    break;
-                                default:
-                                    getLogger().warning("Failed to remove an illegal action containing (with G-Coin) | inventory - " + inventory);
-                                    break;
-                            }
-                        }
-                    }.runTaskLater(plugin, 0); // put it back in the main thread
-                }
+        if (cursor.hasItemMeta() && cursor.getItemMeta().hasCustomModelData() && cursor.getItemMeta().getCustomModelData() == gcoinCustomModelData) {
+            switch (inventory.getType()) {
+                case BREWING: // G-Coin should never be used with these so cancel all
+                case SMITHING:
+                case SMOKER:
+                case STONECUTTER:
+                case GRINDSTONE:
+                case BLAST_FURNACE:
+                case CARTOGRAPHY:
+                case FURNACE:
+                case ENCHANTING:
+                case LOOM:
+                case MERCHANT:
+                case ANVIL:
+                case BEACON:
+                    event.setCancelled(true);
+                    break;
             }
-        }.runTaskLaterAsynchronously(plugin, 0); // So it has the updated inventory*/
-
+        }
     }
 
     /**
      * Checks whether the inventory is one where an item is crafted or modified, and if it is illegal to do that with G-Coin
      */
     public Boolean checkIllegalInventoryThing(Inventory inventory) {
-        int amount; // amount of slots used by that inventory for its things (including result)
         switch (inventory.getType()) {
             case WORKBENCH:
             case CRAFTING: // check that the crafting
-                amount = inventory.getType().getDefaultSize();
                 Integer customModelData = -1; // null if no model data, -1 if no item has been found yet
                 boolean foundBefore = false;
-                for (int i = 0; i < amount; i++) { // check that all values have that same customModelData
+                for (int i = 0; i < inventory.getType().getDefaultSize(); i++) { // check that all values have that same customModelData
 
                     ItemStack item = inventory.getItem(i);
                     if (item != null) {
@@ -246,8 +208,31 @@ public final class GCoin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCraftItem(CraftItemEvent event) {
+    public void fixResult(PrepareItemCraftEvent event) {
+        CraftingInventory inventory = event.getInventory();
 
+        ItemStack resultBefore = inventory.getResult();
+        if (event.getRecipe() != null) { // no recipe, no output, no problem
+            inventory.setResult(event.getRecipe().getResult()); // make the inventory up to date
+
+            if (checkIllegalInventoryThing(inventory)) {
+                inventory.setResult(new ItemStack(Material.AIR));
+            } else {
+                inventory.setResult(resultBefore);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void fixResult(PrepareResultEvent event) {
+        Inventory inventory = event.getInventory();
+
+        for (ItemStack itemStack : inventory) {
+            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasCustomModelData() && itemStack.getItemMeta().getCustomModelData() == gcoinCustomModelData) {
+                event.setResult(new ItemStack(Material.AIR));
+                break;
+            }
+        }
     }
 }
 
