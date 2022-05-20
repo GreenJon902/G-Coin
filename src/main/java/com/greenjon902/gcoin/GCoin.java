@@ -131,9 +131,59 @@ public final class GCoin extends JavaPlugin implements Listener {
         new BukkitRunnable(){
             @Override
             public void run() {
-                System.out.println(checkIllegalInventoryThing(inventory));
+                if (checkIllegalInventoryThing(inventory)) {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            ItemStack air = new ItemStack(Material.AIR);
+
+                            switch (inventory.getType()) { // cancel the modification (remove the result for most)
+                                case WORKBENCH:
+                                case CRAFTING:
+                                    ((CraftingInventory) inventory).setResult(air);
+                                    break;
+                                case SMITHING:
+                                    ((SmithingInventory) inventory).setResult(air);
+                                    break;
+                                case ENCHANTING: // Need more custom blocking
+                                case BREWING: // Need more custom blocking
+                                    break;
+                                case FURNACE:
+                                case SMOKER:
+                                case BLAST_FURNACE:
+                                    ((FurnaceInventory) inventory).setResult(air);
+                                    break;
+                                case STONECUTTER:
+                                    ((StonecutterInventory) inventory).setResult(air);
+                                    break;
+                                case GRINDSTONE:
+                                    ((GrindstoneInventory) inventory).setResult(air);
+                                    break;
+                                case CARTOGRAPHY:
+                                    ((CartographyInventory) inventory).setItem(2, air);
+                                    break;
+                                case LOOM:
+                                    ((LoomInventory) inventory).setItem(3, air);
+                                    break;
+                                case MERCHANT:
+                                    ((MerchantInventory) inventory).setItem(2, air);
+                                    break;
+                                case BEACON:
+                                    event.getInventory().addItem(((BeaconInventory) inventory).getItem(0));
+                                    ((BeaconInventory) inventory).setItem(0, air);
+                                    break;
+                                case ANVIL:
+                                    ((AnvilInventory) inventory).setResult(air);
+                                    break;
+                                default:
+                                    getLogger().warning("Failed to remove an illegal action containing (with G-Coin) | inventory - " + inventory);
+                                    break;
+                            }
+                        }
+                    }.runTaskLater(plugin, 0); // put it back in the main thread
+                }
             }
-        }.runTaskLaterAsynchronously(plugin, 0); // So it has the updated inventory
+        }.runTaskLaterAsynchronously(plugin, 0); // So it has the updated inventory*/
 
     }
 
