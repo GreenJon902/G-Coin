@@ -38,14 +38,6 @@ public final class GCoin extends JavaPlugin implements Listener {
         getCommand("givegcoin").setExecutor(new GiveGCoinCommand());
         getServer().getPluginManager().registerEvents(this, this);
 
-
-        gCoinItemStack = new ItemStack(Material.SUNFLOWER);
-        ItemMeta gCoinItemMeta = gCoinItemStack.getItemMeta();
-        gCoinItemMeta.setCustomModelData(gcoinCustomModelData);
-        gCoinItemMeta.displayName(Component.text(ChatColor.RESET.toString()).append(Component.text( "G-Coin",
-                TextColor.color(255, 170, 0)).asComponent()));
-        gCoinItemStack.setItemMeta(gCoinItemMeta);
-
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
             add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0));
             add(new CraftingHelper("5 G-Coins Note", Material.GOLD_INGOT, 5));
@@ -53,6 +45,7 @@ public final class GCoin extends JavaPlugin implements Listener {
             add(new CraftingHelper("20 G-Coins Note", Material.GOLD_INGOT, 2));
             add(new CraftingHelper("G-Block", Material.GOLD_BLOCK, 9));
         }};
+
         HashMap<String, ItemStack> items = new HashMap<>() {{
            put("G-Coin", gCoinItemStack);
         }};
@@ -61,11 +54,14 @@ public final class GCoin extends JavaPlugin implements Listener {
             ItemStack itemStack = new ItemStack(craftingHelper.material);
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.setCustomModelData(gcoinCustomModelData);
-            itemMeta.displayName(Component.text(craftingHelper.name, TextColor.color(255, 170, 0)).asComponent());
+            itemMeta.displayName(Component.text(craftingHelper.name,
+                    TextColor.color(255, 171, 0)));
             itemStack.setItemMeta(itemMeta);
 
             items.put(craftingHelper.name, itemStack);
         }
+
+        gCoinItemStack = items.get("G-Coin");
 
         ItemStack last = items.get("G-Coin");
         for (int i = 1; i < craftingHelpers.size(); i++) {
@@ -78,7 +74,7 @@ public final class GCoin extends JavaPlugin implements Listener {
             String corrected_name = craftingHelper.name.toLowerCase(Locale.ROOT);
             corrected_name = corrected_name.replace(" ", "_");
             ShapelessRecipe shapelessRecipe = new ShapelessRecipe(new NamespacedKey(this, "gcoin_craft_for_" + corrected_name), itemStack);
-            shapelessRecipe.addIngredient(craftingHelper.amountOfLast, last);
+            shapelessRecipe = shapelessRecipe.addIngredient(craftingHelper.amountOfLast, last);
 
             Bukkit.addRecipe(shapelessRecipe);
             last = itemStack;
@@ -97,7 +93,7 @@ public final class GCoin extends JavaPlugin implements Listener {
             String corrected_name = craftingHelper.name.toLowerCase(Locale.ROOT);
             corrected_name = corrected_name.replace(" ", "_");
             ShapelessRecipe shapelessRecipe = new ShapelessRecipe(new NamespacedKey(this, "gcoin_craft_from_" + corrected_name), last_);
-            shapelessRecipe.addIngredient(1, itemStack);
+            shapelessRecipe = shapelessRecipe.addIngredient(1, itemStack);
 
             Bukkit.addRecipe(shapelessRecipe);
             last = itemStack;
