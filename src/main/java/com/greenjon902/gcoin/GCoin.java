@@ -3,24 +3,21 @@ package com.greenjon902.gcoin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.event.inventory.*;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Logger;
 
 public final class GCoin extends JavaPlugin implements Listener {
@@ -45,7 +42,8 @@ public final class GCoin extends JavaPlugin implements Listener {
         gCoinItemStack = new ItemStack(Material.SUNFLOWER);
         ItemMeta gCoinItemMeta = gCoinItemStack.getItemMeta();
         gCoinItemMeta.setCustomModelData(gcoinCustomModelData);
-        gCoinItemMeta.displayName(Component.text("G-Coin", TextColor.color(255, 170, 0)).asComponent());
+        gCoinItemMeta.displayName(Component.text(ChatColor.RESET.toString()).append(Component.text( "G-Coin",
+                TextColor.color(255, 170, 0)).asComponent()));
         gCoinItemStack.setItemMeta(gCoinItemMeta);
 
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
@@ -122,46 +120,88 @@ public final class GCoin extends JavaPlugin implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCraftingMatrixEdit(InventoryClickEvent event) {
+        Inventory inventory = event.getClickedInventory();
+        if (inventory == null) {
+            return;
+        }
+
+        Plugin plugin = this;
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                System.out.println(checkIllegalInventoryThing(inventory));
+            }
+        }.runTaskLaterAsynchronously(plugin, 0); // So it has the updated inventory
+
+    }
+
+    /**
+     * Checks whether the inventory is one where an item is crafted or modified, and if it is illegal to do that with G-Coin
+     */
+    public Boolean checkIllegalInventoryThing(Inventory inventory) {
+        int amount; // amount of slots used by that inventory for its things (including result)
+        switch (inventory.getType()) {
+            case WORKBENCH:
+            case CRAFTING: // check that the crafting
+                amount = inventory.getType().getDefaultSize();
+                Integer customModelData = -1; // null if no model data, -1 if no item has been found yet
+                boolean foundBefore = false;
+                for (int i = 0; i < amount; i++) { // check that all values have that same customModelData
+
+                    ItemStack item = inventory.getItem(i);
+                    if (item != null) {
+
+                        Integer customModelData2 = null;
+                        if (item.getItemMeta().hasCustomModelData()) {
+                            customModelData2 = item.getItemMeta().getCustomModelData();
+                        }
+
+                        if (foundBefore) { // Do we know what the custom model data should be
+                            if (!Objects.equals(customModelData, customModelData2)) {
+                                return true;
+                            }
+                        } else { // ran on first valid item
+                            customModelData = customModelData2;
+                            foundBefore = true;
+                        }
+                    }
+                }
+
+                return false;
+            case BREWING:
+            case SMITHING:
+            case SMOKER:
+            case STONECUTTER:
+            case GRINDSTONE:
+            case BLAST_FURNACE:
+            case CARTOGRAPHY:
+            case FURNACE:
+            case ENCHANTING:
+            case LOOM:
+            case MERCHANT:
+            case BEACON:
+            case ANVIL: // No modifying of G-Coin Should be possible for these
+                for (int i = 0; i < inventory.getType().getDefaultSize(); i++) {
+
+                    ItemStack item = inventory.getItem(i);
+                    if (item != null) {
+                        if (item.getItemMeta().hasCustomModelData()) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+
+            default:
+                return false; // Not applicable inventory so leave
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftItem(CraftItemEvent event) {
-        if (event.getView().getType() == InventoryType.CRAFTING) {
-            // 1 2  0
-            // 3 4
 
-            for (int i = 1; i < 5; i++) {
-                ItemStack itemStack = event.getInventory().getItem(i);
-
-                if (itemStack != null) {
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    if (itemMeta.hasCustomModelData() && itemMeta.getCustomModelData() == gcoinCustomModelData) {
-                        event.setCancelled(true);
-                    }
-                }
-            }
-
-        } else if (event.getView().getType() == InventoryType.WORKBENCH) {
-            // 1 2 3 0
-            // 4 5 6
-            // 7 8 9
-
-            for (int i = 1; i < 10; i++) {
-                ItemStack itemStack = event.getInventory().getItem(i);
-
-                if (itemStack != null) {
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    if (itemMeta.hasCustomModelData() && itemMeta.getCustomModelData() == gcoinCustomModelData) {
-                        event.setCancelled(true);
-                    }
-                }
-            }
-
-        }
-
-        if (event.getInventory().getItem(0).getItemMeta().hasCustomModelData() &&
-                event.getInventory().getItem(0).getItemMeta().getCustomModelData() == gcoinCustomModelData) {
-            event.setCancelled(false);
-        }
     }
 }
 
