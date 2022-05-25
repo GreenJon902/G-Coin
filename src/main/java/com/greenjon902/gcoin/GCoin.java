@@ -1,5 +1,10 @@
 package com.greenjon902.gcoin;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -96,6 +101,28 @@ public final class GCoin extends JavaPlugin implements Listener {
             Bukkit.addRecipe(shapelessRecipe);
             last = itemStack;
         }
+
+
+
+        ProtocolManager manager = ProtocolLibrary.getProtocolManager();
+        manager.addPacketListener(new PacketAdapter(this, PacketType.Play.Client.WINDOW_CLICK) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                Slot itemSlot = event.getPacket().getItemSlots().read(0);
+
+                super.onPacketReceiving(event);
+            }
+        });
+
+
+
+
+
+
+
+
+
+
 
         logger.info("G-Coin started!");
     }
