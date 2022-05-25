@@ -1,14 +1,17 @@
 package com.greenjon902.gcoin;
 
 import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -115,18 +118,30 @@ public final class GCoin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    public void blockGCoinInCertainInventories(InventoryDragEvent event) {
+        for (int slot : event.getNewItems().keySet()) {
+            ItemStack itemStack = event.getNewItems().get(slot);
+            blockGCoinInCertainInventories(event, slot, itemStack);
+        }
+        System.out.println(4);
+    }
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void blockGCoinInCertainInventories(InventoryClickEvent event) {
-        Inventory inventory = event.getClickedInventory();
-        if (inventory == null) {
+        blockGCoinInCertainInventories(event, event.getSlot(), event.getCursor());
+        System.out.println(3);
+    }
+
+
+    public void blockGCoinInCertainInventories(InventoryInteractEvent event, int slot, ItemStack added) {
+        Inventory inventory = event.getInventory();
+        System.out.println(inventory);
+
+        if (added == null) {
             return;
         }
 
-        ItemStack cursor = event.getView().getCursor();
-        if (cursor == null) {
-            return;
-        }
-
-        if (cursor.hasItemMeta() && cursor.getItemMeta().hasCustomModelData() && cursor.getItemMeta().getCustomModelData() == gcoinCustomModelData) {
+        if (added.hasItemMeta() && added.getItemMeta().hasCustomModelData() && added.getItemMeta().getCustomModelData() == gcoinCustomModelData &&
+            slot < inventory.getType().getDefaultSize()) {
             switch (inventory.getType()) {
                 case BREWING: // G-Coin should never be used with these so cancel all
                 case SMITHING:
@@ -141,16 +156,17 @@ public final class GCoin extends JavaPlugin implements Listener {
                 case MERCHANT:
                 case ANVIL:
                 case BEACON:
+                    System.out.println(1);
                     event.setCancelled(true);
                     break;
-            }
+            } // Crafting gets handled elsewhere
         }
     }
 
     /**
-     * Checks whether the inventory is one where an item is crafted or modified, and if it is illegal to do that with G-Coin
+     * Checks whether the crafting is impossible
      */
-    public Boolean checkIllegalInventoryThing(Inventory inventory) {
+    public Boolean checkIllegalCraft(Inventory inventory) {
         switch (inventory.getType()) {
             case WORKBENCH:
             case CRAFTING: // check that the crafting
@@ -177,34 +193,9 @@ public final class GCoin extends JavaPlugin implements Listener {
                     }
                 }
 
-                return false;
-            case BREWING:
-            case SMITHING:
-            case SMOKER:
-            case STONECUTTER:
-            case GRINDSTONE:
-            case BLAST_FURNACE:
-            case CARTOGRAPHY:
-            case FURNACE:
-            case ENCHANTING:
-            case LOOM:
-            case MERCHANT:
-            case BEACON:
-            case ANVIL: // No modifying of G-Coin Should be possible for these
-                for (int i = 0; i < inventory.getType().getDefaultSize(); i++) {
-
-                    ItemStack item = inventory.getItem(i);
-                    if (item != null) {
-                        if (item.getItemMeta().hasCustomModelData()) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-
-            default:
-                return false; // Not applicable inventory so leave
+                break;
         }
+        return false;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -215,7 +206,8 @@ public final class GCoin extends JavaPlugin implements Listener {
         if (event.getRecipe() != null) { // no recipe, no output, no problem
             inventory.setResult(event.getRecipe().getResult()); // make the inventory up to date
 
-            if (checkIllegalInventoryThing(inventory)) {
+            if (checkIllegalCraft(inventory)) {
+                System.out.println(2);
                 inventory.setResult(new ItemStack(Material.AIR));
             } else {
                 inventory.setResult(resultBefore);
@@ -224,7 +216,7 @@ public final class GCoin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void fixResult(PrepareResultEvent event) {
+    public void fixResult(PrepareResultEvent event) { // Just in case it gets into an anvil, still block
         Inventory inventory = event.getInventory();
 
         for (ItemStack itemStack : inventory) {
