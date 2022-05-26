@@ -123,12 +123,10 @@ public final class GCoin extends JavaPlugin implements Listener {
             ItemStack itemStack = event.getNewItems().get(slot);
             blockGCoinInCertainInventories(event, slot, itemStack);
         }
-        System.out.println(4);
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void blockGCoinInCertainInventories(InventoryClickEvent event) {
         blockGCoinInCertainInventories(event, event.getSlot(), event.getCursor());
-        System.out.println(3);
     }
 
 
@@ -156,7 +154,6 @@ public final class GCoin extends JavaPlugin implements Listener {
                 case MERCHANT:
                 case ANVIL:
                 case BEACON:
-                    System.out.println(1);
                     event.setCancelled(true);
                     break;
             } // Crafting gets handled elsewhere
@@ -207,7 +204,6 @@ public final class GCoin extends JavaPlugin implements Listener {
             inventory.setResult(event.getRecipe().getResult()); // make the inventory up to date
 
             if (checkIllegalCraft(inventory)) {
-                System.out.println(2);
                 inventory.setResult(new ItemStack(Material.AIR));
             } else {
                 inventory.setResult(resultBefore);
