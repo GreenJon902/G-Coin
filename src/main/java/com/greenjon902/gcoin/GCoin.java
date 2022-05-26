@@ -214,18 +214,6 @@ public final class GCoin extends JavaPlugin implements Listener {
             }
         }
     }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void fixResult(PrepareResultEvent event) { // Just in case it gets into an anvil, still block
-        Inventory inventory = event.getInventory();
-
-        for (ItemStack itemStack : inventory) {
-            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasCustomModelData() && itemStack.getItemMeta().getCustomModelData() == gcoinCustomModelData) {
-                event.setResult(new ItemStack(Material.AIR));
-                break;
-            }
-        }
-    }
 }
 
 class CraftingHelper {
