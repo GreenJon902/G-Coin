@@ -43,7 +43,6 @@ public class GCoinModificationListener implements Listener {
 
     public void blockGCoinInCertainInventories(InventoryInteractEvent event, int slot, ItemStack added) {
         Inventory inventory = event.getInventory();
-        System.out.println(inventory);
 
         if (added == null) {
             return;
