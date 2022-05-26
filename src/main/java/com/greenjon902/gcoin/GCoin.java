@@ -1,30 +1,34 @@
 package com.greenjon902.gcoin;
 
-import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public final class GCoin extends JavaPlugin implements Listener {
-    Logger logger = this.getLogger();
+    public static Logger logger;
 
-    private static final int gcoinCustomModelData = 71;
+    public static final int gcoinCustomModelData = 71;
 
     private static ItemStack gCoinItemStack;
 
@@ -34,10 +38,12 @@ public final class GCoin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        logger = getLogger();
         logger.info("G-Coin starting...");
 
         getCommand("givegcoin").setExecutor(new GiveGCoinCommand());
-        getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new GCoinModificationListener(), this);
+        getServer().getPluginManager().registerEvents(new GCoinPlaceListener(), this);
 
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
             add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0));
@@ -108,62 +114,11 @@ public final class GCoin extends JavaPlugin implements Listener {
         logger.info("G-Coin stopping!");
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getItemInHand().getItemMeta().hasCustomModelData() &&
-                event.getItemInHand().getItemMeta().getCustomModelData() == gcoinCustomModelData) {
-            event.setCancelled(true);
-            logger.info(event.getPlayer().getName() + " tried playing a g-coin item!");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void blockGCoinInCertainInventories(InventoryDragEvent event) {
-        for (int slot : event.getNewItems().keySet()) {
-            ItemStack itemStack = event.getNewItems().get(slot);
-            blockGCoinInCertainInventories(event, slot, itemStack);
-        }
-    }
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void blockGCoinInCertainInventories(InventoryClickEvent event) {
-        blockGCoinInCertainInventories(event, event.getSlot(), event.getCursor());
-    }
-
-
-    public void blockGCoinInCertainInventories(InventoryInteractEvent event, int slot, ItemStack added) {
-        Inventory inventory = event.getInventory();
-        System.out.println(inventory);
-
-        if (added == null) {
-            return;
-        }
-
-        if (added.hasItemMeta() && added.getItemMeta().hasCustomModelData() && added.getItemMeta().getCustomModelData() == gcoinCustomModelData &&
-            slot < inventory.getType().getDefaultSize()) {
-            switch (inventory.getType()) {
-                case BREWING: // G-Coin should never be used with these so cancel all
-                case SMITHING:
-                case SMOKER:
-                case STONECUTTER:
-                case GRINDSTONE:
-                case BLAST_FURNACE:
-                case CARTOGRAPHY:
-                case FURNACE:
-                case ENCHANTING:
-                case LOOM:
-                case MERCHANT:
-                case ANVIL:
-                case BEACON:
-                    event.setCancelled(true);
-                    break;
-            } // Crafting gets handled elsewhere
-        }
-    }
 
     /**
      * Checks whether the crafting is impossible
      */
-    public Boolean checkIllegalCraft(Inventory inventory) {
+    public static Boolean checkIllegalCraft(Inventory inventory) {
         switch (inventory.getType()) {
             case WORKBENCH:
             case CRAFTING: // check that the crafting
@@ -195,21 +150,7 @@ public final class GCoin extends JavaPlugin implements Listener {
         return false;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void fixResult(PrepareItemCraftEvent event) {
-        CraftingInventory inventory = event.getInventory();
 
-        ItemStack resultBefore = inventory.getResult();
-        if (event.getRecipe() != null) { // no recipe, no output, no problem
-            inventory.setResult(event.getRecipe().getResult()); // make the inventory up to date
-
-            if (checkIllegalCraft(inventory)) {
-                inventory.setResult(new ItemStack(Material.AIR));
-            } else {
-                inventory.setResult(resultBefore);
-            }
-        }
-    }
 }
 
 class CraftingHelper {
