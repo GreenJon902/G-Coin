@@ -5,14 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapelessRecipe;
@@ -44,6 +37,7 @@ public final class GCoin extends JavaPlugin implements Listener {
         getCommand("givegcoin").setExecutor(new GiveGCoinCommand());
         getServer().getPluginManager().registerEvents(new GCoinModificationListener(), this);
         getServer().getPluginManager().registerEvents(new GCoinPlaceListener(), this);
+        getServer().getPluginManager().registerEvents(new GCoinCraftingBookListener(), this);
 
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
             add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0));
