@@ -16,7 +16,7 @@ public class GiveGCoinCommand implements TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player recipient;
-        Integer amount;
+        int amount;
 
         if (args.length == 1 && sender instanceof Player) {
             recipient = (Player) sender;
