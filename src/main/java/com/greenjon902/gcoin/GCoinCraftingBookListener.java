@@ -14,8 +14,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class GCoinCraftingBookListener implements Listener {
+    private static HashMap<ItemStack, Integer> improveIngredientList(List<ItemStack> oldIngredients) {
+        HashMap<ItemStack, Integer> ingredients = new HashMap<>(); // have amounts for checking if inventory contains that
+        for (ItemStack itemStack : oldIngredients) { // count occurrences
+            if (!ingredients.containsKey(itemStack)) {
+                ingredients.put(itemStack, 1);
+            } else {
+                ingredients.put(itemStack, ingredients.get(itemStack) + 1);
+            }
+        }
+
+        return ingredients;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onCraftingBookListener(PlayerRecipeBookClickEvent event) throws Exception {
         System.out.println(event.getRecipe());
@@ -23,11 +37,36 @@ public class GCoinCraftingBookListener implements Listener {
             if (!(Bukkit.getRecipe(event.getRecipe()) instanceof ShapelessRecipe)) {
                 throw new Exception("Not shapeless recipe found as a g-coin recipe");
             }
-
             ShapelessRecipe recipe = (ShapelessRecipe) Bukkit.getRecipe(event.getRecipe());
             if (recipe == null) {
                 throw new NullPointerException("Recipe was null");
             }
+            HashMap<ItemStack, Integer> ingredients = improveIngredientList(recipe.getIngredientList());
+
+            if (!(event.getPlayer().getOpenInventory().getTopInventory() instanceof CraftingInventory)) {
+                throw new Exception("Inventory that player in is not a crafting inventory");
+            }
+            CraftingInventory craftingInventory = (CraftingInventory) event.getPlayer().getOpenInventory().getTopInventory();
+            Inventory bottomInventory = event.getPlayer().getOpenInventory().getBottomInventory();
+
+            boolean makeAll = event.isMakeAll();
+
+            HashMap<ItemStack, Integer> amountOfIngredientsPlayerHas = new HashMap<>();
+            for (ItemStack ingredient : ingredients.keySet()) {
+                amountOfIngredientsPlayerHas.put(ingredient, 0);
+            }
+            for (ItemStack playerItemStack : bottomInventory) {
+                if (playerItemStack == null) {
+                    continue;
+                }
+                int lastAmount = amountOfIngredientsPlayerHas.get(playerItemStack);
+
+            }
+
+
+
+
+
 
             event.setCancelled(true);
 
@@ -35,23 +74,12 @@ public class GCoinCraftingBookListener implements Listener {
             System.out.println(recipe.getResult());
             System.out.println(recipe.getIngredientList());
 
-            ArrayList<ItemStack> oldIngredients = (ArrayList<ItemStack>) recipe.getIngredientList();
-            HashMap<ItemStack, Integer> ingredients = new HashMap<>(); // have amounts for checking if inventory contains that
-            for (ItemStack itemStack : oldIngredients) { // count occurrences
-                if (!ingredients.containsKey(itemStack)) {
-                    ingredients.put(itemStack, 1);
-                } else {
-                    ingredients.put(itemStack, ingredients.get(itemStack) + 1);
-                }
-            }
+
             System.out.println(oldIngredients);
 
-            if (!(event.getPlayer().getOpenInventory().getTopInventory() instanceof CraftingInventory)) {
-                throw new Exception("Inventory that player in is not a crafting inventory");
-            }
 
-            CraftingInventory inventory = (CraftingInventory) event.getPlayer().getOpenInventory().getTopInventory();
-            Inventory bottomInventory = event.getPlayer().getOpenInventory().getBottomInventory();
+
+
             System.out.println(inventory);
             System.out.println(bottomInventory);
 
