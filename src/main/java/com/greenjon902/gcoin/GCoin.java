@@ -1,7 +1,9 @@
 package com.greenjon902.gcoin;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -39,11 +41,11 @@ public final class GCoin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new GCoinPlaceListener(), this);
 
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
-            add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0));
-            add(new CraftingHelper("5 G-Coins Note", Material.GOLD_INGOT, 5));
-            add(new CraftingHelper("10 G-Coins Note", Material.GOLD_INGOT, 2));
-            add(new CraftingHelper("20 G-Coins Note", Material.GOLD_INGOT, 2));
-            add(new CraftingHelper("G-Block", Material.GOLD_BLOCK, 9));
+            add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0, 1));
+            add(new CraftingHelper("5 G-Coins Note", Material.GOLD_INGOT, 5, 5));
+            add(new CraftingHelper("10 G-Coins Note", Material.GOLD_INGOT, 2, 10));
+            add(new CraftingHelper("20 G-Coins Note", Material.GOLD_INGOT, 2, 20));
+            add(new CraftingHelper("G-Block", Material.GOLD_BLOCK, 9, 180));
         }};
 
         HashMap<String, ItemStack> items = new HashMap<>() {{
@@ -54,8 +56,27 @@ public final class GCoin extends JavaPlugin implements Listener {
             ItemStack itemStack = new ItemStack(craftingHelper.material);
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.setCustomModelData(gcoinCustomModelData);
-            itemMeta.displayName(Component.text(craftingHelper.name,
-                    TextColor.color(255, 171, 0)));
+
+            TextComponent name = Component.text(craftingHelper.name)
+                                .decoration(TextDecoration.ITALIC, false)
+                                .decoration(TextDecoration.BOLD, true)
+                                .color(NamedTextColor.GOLD);
+
+            itemMeta.displayName(name);
+
+            ArrayList<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Worth " + craftingHelper.value + " G-Coin"));
+            lore.add(Component.text(""));
+            lore.add(Component.text("The official ")
+                    .color(NamedTextColor.LIGHT_PURPLE)
+                    .append(Component.text("G-Dem SMP ")
+                            .decoration(TextDecoration.BOLD, true))
+                    .append(Component.text("currency"))
+                    .decoration(TextDecoration.BOLD, false)
+                    .decoration(TextDecoration.ITALIC, false));
+
+            itemMeta.lore(lore);
+
             itemStack.setItemMeta(itemMeta);
 
             items.put(craftingHelper.name, itemStack);
@@ -150,10 +171,12 @@ class CraftingHelper {
     public final String name;
     public final Material material;
     public final int amountOfLast;
+    public final int value;
 
-    CraftingHelper(String name, Material material, int amountOfLast) {
+    CraftingHelper(String name, Material material, int amountOfLast, int value) {
         this.name = name;
         this.material = material;
         this.amountOfLast = amountOfLast;
+        this.value = value;
     }
 }
