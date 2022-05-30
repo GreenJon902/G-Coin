@@ -1,5 +1,6 @@
 package com.greenjon902.gcoin;
 
+import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,6 +38,18 @@ public class GCoinModificationListener implements Listener {
                 inventory.setResult(new ItemStack(Material.AIR));
             } else {
                 inventory.setResult(resultBefore);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void fixResult(PrepareResultEvent event) { // Incease it gets into an anvil
+        Inventory inventory = event.getInventory();
+
+        for (ItemStack itemStack : inventory) {
+            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasCustomModelData() && itemStack.getItemMeta().getCustomModelData() == GCoin.gcoinCustomModelData) {
+                event.setResult(new ItemStack(Material.AIR));
+                break;
             }
         }
     }
