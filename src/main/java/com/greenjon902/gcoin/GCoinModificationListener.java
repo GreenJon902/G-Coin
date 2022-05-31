@@ -47,7 +47,7 @@ public class GCoinModificationListener implements Listener {
         Inventory inventory = event.getInventory();
 
         for (ItemStack itemStack : inventory) {
-            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasCustomModelData() && itemStack.getItemMeta().getCustomModelData() == GCoin.gcoinCustomModelData) {
+            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasCustomModelData() && GCoin.gcoinCustomModelDatas.contains(itemStack.getItemMeta().getCustomModelData())) {
                 event.setResult(new ItemStack(Material.AIR));
                 break;
             }
@@ -61,7 +61,7 @@ public class GCoinModificationListener implements Listener {
             return;
         }
 
-        if (added.hasItemMeta() && added.getItemMeta().hasCustomModelData() && added.getItemMeta().getCustomModelData() == GCoin.gcoinCustomModelData &&
+        if (added.hasItemMeta() && added.getItemMeta().hasCustomModelData() && GCoin.gcoinCustomModelDatas.contains(added.getItemMeta().getCustomModelData()) &&
                 slot < inventory.getType().getDefaultSize()) {
             switch (inventory.getType()) {
                 case BREWING: // G-Coin should never be used with these so cancel all

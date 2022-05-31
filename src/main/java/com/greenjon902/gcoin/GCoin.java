@@ -16,14 +16,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public final class GCoin extends JavaPlugin implements Listener {
     public static Logger logger;
 
-    public static final int gcoinCustomModelData = 71;
+    public static final List<Integer> gcoinCustomModelDatas = new ArrayList<>() {{
+            add(711);
+            add(715);
+            add(7110);
+            add(7120);
+            add(71180);
+    }};
 
     private static ItemStack gCoinItemStack;
 
@@ -52,10 +58,12 @@ public final class GCoin extends JavaPlugin implements Listener {
            put("G-Coin", gCoinItemStack);
         }};
 
+        int n = 0;
         for (CraftingHelper craftingHelper : craftingHelpers) {
             ItemStack itemStack = new ItemStack(craftingHelper.material);
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setCustomModelData(gcoinCustomModelData);
+            itemMeta.setCustomModelData(gcoinCustomModelDatas.get(n));
+            n++;
 
             TextComponent name = Component.text(craftingHelper.name)
                                 .decoration(TextDecoration.ITALIC, false)
@@ -74,7 +82,6 @@ public final class GCoin extends JavaPlugin implements Listener {
                     .append(Component.text("currency"))
                     .decoration(TextDecoration.BOLD, false)
                     .decoration(TextDecoration.ITALIC, false));
-
             itemMeta.lore(lore);
 
             itemStack.setItemMeta(itemMeta);
@@ -149,7 +156,7 @@ public final class GCoin extends JavaPlugin implements Listener {
                         }
 
                         if (foundBefore) { // Do we know what the custom model data should be
-                            if (!Objects.equals(customModelData, customModelData2)) {
+                            if (!(gcoinCustomModelDatas.contains(customModelData) && gcoinCustomModelDatas.contains(customModelData2))) {
                                 return true;
                             }
                         } else { // ran on first valid item

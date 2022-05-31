@@ -9,7 +9,7 @@ public class GCoinPlaceListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.getItemInHand().getItemMeta().hasCustomModelData() &&
-                event.getItemInHand().getItemMeta().getCustomModelData() == GCoin.gcoinCustomModelData) {
+                GCoin.gcoinCustomModelDatas.contains(event.getItemInHand().getItemMeta().getCustomModelData())) {
             event.setCancelled(true);
             GCoin.logger.info(event.getPlayer().getName() + " tried playing a g-coin item!");
         }
