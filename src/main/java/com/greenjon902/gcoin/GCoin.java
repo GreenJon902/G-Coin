@@ -143,24 +143,24 @@ public final class GCoin extends JavaPlugin implements Listener {
         switch (inventory.getType()) {
             case WORKBENCH:
             case CRAFTING: // check that the crafting
-                Integer customModelData = -1; // null if no model data, -1 if no item has been found yet
+                Boolean isGCoin = null;
                 boolean foundBefore = false;
-                for (int i = 0; i < inventory.getType().getDefaultSize(); i++) { // check that all values have that same customModelData
+                for (int i = 0; i < inventory.getType().getDefaultSize(); i++) {
 
                     ItemStack item = inventory.getItem(i);
                     if (item != null) {
 
-                        Integer customModelData2 = null;
+                        Integer customModelData = null;
                         if (item.getItemMeta().hasCustomModelData()) {
-                            customModelData2 = item.getItemMeta().getCustomModelData();
+                            customModelData = item.getItemMeta().getCustomModelData();
                         }
 
                         if (foundBefore) { // Do we know what the custom model data should be
-                            if (!(gcoinCustomModelDatas.contains(customModelData) && gcoinCustomModelDatas.contains(customModelData2))) {
+                            if (isGCoin ^ gcoinCustomModelDatas.contains(customModelData)) {
                                 return true;
                             }
                         } else { // ran on first valid item
-                            customModelData = customModelData2;
+                            isGCoin = gcoinCustomModelDatas.contains(customModelData);
                             foundBefore = true;
                         }
                     }
