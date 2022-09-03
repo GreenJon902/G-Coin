@@ -23,12 +23,15 @@ import java.util.logging.Logger;
 public final class GCoin extends JavaPlugin implements Listener {
     public static Logger logger;
 
-    public static final List<Integer> gcoinCustomModelDatas = new ArrayList<>() {{
-            add(711);
-            add(715);
-            add(7110);
-            add(7120);
-            add(71180);
+    public static final List<Integer> gcoinCustomModelDatas = new ArrayList<>() {{ // decimalPoint 71 value
+            add(171); // 0.01
+            add(571); // 0.05
+            add(2571); // 0.25
+            add(711); // 1
+            add(715); // 5
+            add(7110); // 10
+            add(7120); // 20
+            add(71180); // 180
     }};
 
     private static ItemStack gCoinItemStack;
@@ -46,17 +49,21 @@ public final class GCoin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new GCoinModificationListener(), this);
         getServer().getPluginManager().registerEvents(new GCoinPlaceListener(), this);
 
+        // Info for recipes
         ArrayList<CraftingHelper> craftingHelpers = new ArrayList<>() {{
-            add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 0, 1));
+            add(new CraftingHelper("G-Cent", Material.GOLD_NUGGET, 0, 0.01));
+            add(new CraftingHelper("5 G-Cents", Material.GOLD_NUGGET, 5, 0.05));
+            add(new CraftingHelper("G-Quarter", Material.GOLD_NUGGET, 5, 0.25));
+            add(new CraftingHelper("G-Coin", Material.SUNFLOWER, 4, 1));
             add(new CraftingHelper("5 G-Coins Note", Material.GOLD_INGOT, 5, 5));
             add(new CraftingHelper("10 G-Coins Note", Material.GOLD_INGOT, 2, 10));
             add(new CraftingHelper("20 G-Coins Note", Material.GOLD_INGOT, 2, 20));
             add(new CraftingHelper("G-Block", Material.GOLD_BLOCK, 9, 180));
         }};
 
-        HashMap<String, ItemStack> items = new HashMap<>() {{
-           put("G-Coin", gCoinItemStack);
-        }};
+
+        // Create Item Types
+        HashMap<String, ItemStack> items = new HashMap<>();
 
         int n = 0;
         for (CraftingHelper craftingHelper : craftingHelpers) {
@@ -88,10 +95,10 @@ public final class GCoin extends JavaPlugin implements Listener {
 
             items.put(craftingHelper.name, itemStack);
         }
-
         gCoinItemStack = items.get("G-Coin");
 
-        ItemStack last = items.get("G-Coin");
+        // Create recipes for down crafting
+        ItemStack last = items.get("G-Cent"); // First one not down craft-able so set in last and skip in loop
         for (int i = 1; i < craftingHelpers.size(); i++) {
             CraftingHelper craftingHelper = craftingHelpers.get(i);
             getLogger().info("Adding recipe for " + craftingHelper.name + " from " + last.toString());
@@ -108,7 +115,8 @@ public final class GCoin extends JavaPlugin implements Listener {
             last = itemStack;
         }
 
-        last = items.get("G-Coin");
+        // Create recipes for up crafting
+        last = items.get("G-Cent");
         for (int i = 1; i < craftingHelpers.size(); i++) {
             CraftingHelper craftingHelper = craftingHelpers.get(i);
             getLogger().info("Adding recipe from " + craftingHelper.name + " to " + last.toString());
@@ -178,9 +186,9 @@ class CraftingHelper {
     public final String name;
     public final Material material;
     public final int amountOfLast;
-    public final int value;
+    public final double value;
 
-    CraftingHelper(String name, Material material, int amountOfLast, int value) {
+    CraftingHelper(String name, Material material, int amountOfLast, double value) {
         this.name = name;
         this.material = material;
         this.amountOfLast = amountOfLast;
