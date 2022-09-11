@@ -6,7 +6,7 @@
 
     <groupId>com.greenjon902</groupId>
     <artifactId>gcoin</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>G-Coin</name>

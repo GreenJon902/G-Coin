@@ -80,7 +80,10 @@ public final class GCoin extends JavaPlugin implements Listener {
             itemMeta.displayName(name);
 
             ArrayList<Component> lore = new ArrayList<>();
-            lore.add(Component.text("Worth " + craftingHelper.value + " G-Coin"));
+            lore.add(Component.text("Worth " +
+                    (craftingHelper.value==(long)craftingHelper.value ?
+                            (long)craftingHelper.value : craftingHelper.value)
+                    + " G-Coin"));
             lore.add(Component.text(""));
             lore.add(Component.text("The official ")
                     .color(NamedTextColor.LIGHT_PURPLE)
